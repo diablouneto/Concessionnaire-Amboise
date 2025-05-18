@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catalogue de Véhicules</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background: linear-gradient(to right, #1e1b4b, #0f172a);
+    }
+    .card-hover:hover {
+      transform: scale(1.03);
+      transition: transform 0.3s ease;
+    }
+  </style>
+</head>
+<body class="text-white font-sans">
+  <div class="container mx-auto px-6 py-10">
+    <h1 class="text-5xl font-extrabold mb-10 text-center text-violet-400 drop-shadow-lg">🚗 Catalogue de Véhicules 🚙</h1>
+
+    <!-- Filtres -->
+    <div class="flex flex-wrap justify-center gap-4 mb-8">
+      <button class="filter-btn px-5 py-2 bg-violet-600 hover:bg-violet-700 transition text-white font-medium rounded-full shadow" data-category="all">Tout</button>
+      <button class="filter-btn px-5 py-2 bg-zinc-700 hover:bg-violet-600 transition rounded-full shadow" data-category="utilitaire">Utilitaire</button>
+      <button class="filter-btn px-5 py-2 bg-zinc-700 hover:bg-violet-600 transition rounded-full shadow" data-category="ordinaire">Ordinaire</button>
+      <button class="filter-btn px-5 py-2 bg-zinc-700 hover:bg-violet-600 transition rounded-full shadow" data-category="electrique">Électrique</button>
+      <button class="filter-btn px-5 py-2 bg-zinc-700 hover:bg-violet-600 transition rounded-full shadow" data-category="suv">SUV</button>
+      <button class="filter-btn px-5 py-2 bg-zinc-700 hover:bg-violet-600 transition rounded-full shadow" data-category="sport">Sport</button>
+    </div>
+
+    <!-- Tri -->
+    <div class="flex justify-center mb-10">
+      <select id="sort-select" class="p-3 bg-zinc-800 text-white border border-violet-500 rounded-full shadow">
+        <option value="default">🔽 Trier par...</option>
+        <option value="price-asc">💰 Prix croissant</option>
+        <option value="price-desc">💸 Prix décroissant</option>
+        <option value="speed-asc">🐢 Vitesse croissante</option>
+        <option value="speed-desc">🚀 Vitesse décroissante</option>
+      </select>
+    </div>
+
+    <!-- Liste -->
+    <div id="vehicle-list" class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
+  </div>
+
+  <script>
+    const vehicles = [
+      { model: "Leaf Golster 1991", category: "utilitaire", price: 3400, speed: 120, acceleration: 18, image: "https://i.imgur.com/h365uKC.png" },
+      { model: "Renaud Master", category: "utilitaire", price: 45500, speed: 170, acceleration: 12, image: "https://i.imgur.com/fpNomnx.png" },
+      { model: "206", category: "ordinaire", price: 13500, speed: 155, acceleration: 7.80, image: "https://i.imgur.com/hNZzDB5.png" },
+      { model: "C4 Grand Picasso", category: "ordinaire", price: 16000, speed: 160, acceleration: 11, image: "https://i.imgur.com/aBchCpB.png" },
+      { model: "Renaud Express", category: "ordinaire", price: 8000, speed: 100, acceleration: 16.30, image: "https://i.imgur.com/jpRn8wB.jpeg" },
+      { model: "Berlingo", category: "ordinaire", price: 22000, speed: 130, acceleration: 9.5, image: "https://i.imgur.com/wpcgVJh.png" },
+      { model: "Premier", category: "ordinaire", price: 30000, speed: 170, acceleration: 13.75, image: "https://i.imgur.com/QAAvzxG.png" },
+      { model: "Megane IV", category: "ordinaire", price: 43000, speed: 170, acceleration: 8, image: "https://i.imgur.com/sA7sBrZ.png" },
+      { model: "5008", category: "ordinaire", price: 50000, speed: 190, acceleration: 9.2, image: "https://i.imgur.com/lYcYjw9.png" },
+      { model: "Charger 1970", category: "ordinaire", price: 80000, speed: 195, acceleration: 8, image: "https://i.imgur.com/I9LknR4.png" },
+      { model: "Olympia A7", category: "ordinaire", price: 120000, speed: 230, acceleration: 6, image: "https://i.imgur.com/iFEgIeX.jpeg" },
+      { model: "V Model S", category: "electrique", price: 160000, speed: 270, acceleration: 4.0, image: "https://i.imgur.com/uorQspY.jpeg" },
+      { model: "Korn Ranger 2021", category: "suv", price: 50000, speed: 190, acceleration: 10, image: "https://i.imgur.com/Kc4e8z7.jpeg" },
+      { model: "Range River", category: "suv", price: 55000, speed: 190, acceleration: 11.5, image: "https://i.imgur.com/lc5zTOz.jpeg" },
+      { model: "Stellar Coupé", category: "suv", price: 165000, speed: 240, acceleration: 6, image: "https://i.imgur.com/emrXOK7.jpeg" },
+      { model: "RX7", category: "sport", price: 200000, speed: 240, acceleration: 5.5, image: "https://i.imgur.com/NLsARd1.png" },
+      { model: "Stellar 911 RS", category: "sport", price: 500000, speed: 320, acceleration: 5, image: "https://i.imgur.com/rcqzpSF.png" }
+    ];
+
+    const listEl = document.getElementById("vehicle-list");
+    const filterBtns = document.querySelectorAll(".filter-btn");
+    const sortSelect = document.getElementById("sort-select");
+    let currentFilter = "all";
+
+    function renderList() {
+      let filtered = [...vehicles];
+      const sort = sortSelect.value;
+
+      if (currentFilter !== "all") {
+        filtered = filtered.filter(v => v.category === currentFilter);
+      }
+
+      if (sort === "price-asc") filtered.sort((a, b) => a.price - b.price);
+      if (sort === "price-desc") filtered.sort((a, b) => b.price - a.price);
+      if (sort === "speed-asc") filtered.sort((a, b) => a.speed - b.speed);
+      if (sort === "speed-desc") filtered.sort((a, b) => b.speed - a.speed);
+
+      listEl.innerHTML = filtered.map(v => `
+        <div class="bg-zinc-800 rounded-xl shadow-xl p-5 flex gap-4 card-hover">
+          <img src="${v.image}" alt="${v.model}" class="w-36 h-36 object-cover rounded-xl border border-violet-500">
+          <div class="flex flex-col justify-between">
+            <div>
+              <h2 class="text-2xl font-bold text-violet-300 mb-1">${v.model}</h2>
+              <p class="text-lg text-violet-100 mb-1">💶 ${v.price.toLocaleString()} €</p>
+              <p class="mb-1">🚗 Vitesse max : ${v.speed} km/h</p>
+              <p>⏱️ 0-100 : ${v.acceleration} s</p>
+            </div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    filterBtns.forEach(btn => {
+      btn.addEventListener("click", () => {
+        filterBtns.forEach(b => b.classList.remove("bg-violet-600", "text-white"));
+        btn.classList.add("bg-violet-600", "text-white");
+        currentFilter = btn.dataset.category;
+        renderList();
+      });
+    });
+
+    sortSelect.addEventListener("change", renderList);
+
+    renderList();
+  </script>
+</body>
+</html>
+
